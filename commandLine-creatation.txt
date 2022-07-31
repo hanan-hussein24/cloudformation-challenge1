@@ -1,0 +1,19 @@
+
+
+# Command Line To Create Stack and run code cloudformation .yaml & .json 
+
+# We use file .yaml to create resources & file .json as script to use parameters on file .yaml:
+
+
+$ sudo aws cloudformation create-stack --template-body file://challenge1/challenge1.yml --stack-name challenge1-stack --parameters file://challenge1/parameters.json --profile (nameOFuser)
+
+
+
+# To Verify, use public IP of launched EC2 instance after created .... open on your browser:
+
+     http://public-ip-address   ----> page apache your result
+
+
+# To Delete This stack & All resources created  --->  run this command:
+
+$ sudo aws cloudformation delete-stack --stack-name challenge1-stack

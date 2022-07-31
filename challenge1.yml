@@ -1,0 +1,64 @@
+Description: Hanan Hussein / Udacity - This template deploys a Security Group & New Instance
+
+
+Parameters:
+  myVPC:
+      Description: VPC used to deploy our resources below
+      Type: AWS::EC2::VPC::Id
+  PublicSubnet:
+      Description: Subnet to be used for our Web Server
+      Type: 'AWS::EC2::Subnet::Id'
+  AMItoUse:
+      Description: AMI to use for our base image
+      Type: AWS::EC2::Image::Id
+  
+Resources:
+
+  SSHSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: 
+          Ref: myVPC 
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+
+  myWebAccessSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: 
+          Ref : myVPC
+      GroupDescription: allows inbound access on Tcp 80 allows unrestricted outbound access
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0    
+
+  myWebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMItoUse
+      AvailabilityZone: us-east-1a
+      InstanceType: t2.micro
+      NetworkInterfaces: 
+        - AssociatePublicIpAddress: "true"
+          DeviceIndex: "0"
+          SubnetId: !Ref PublicSubnet
+          GroupSet: 
+           - Ref: 'myWebAccessSecurityGroup'
+      UserData:
+       Fn::Base64: !Sub |
+         #!/bin/bash
+         sudo yum update -y
+         sudo yum install -y httpd
+         sudo systemctl start httpd
+         sudo systemctl enable httpd
